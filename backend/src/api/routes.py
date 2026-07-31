@@ -195,10 +195,13 @@ async def download_export(db: Session = Depends(get_db)):
         with tempfile.TemporaryDirectory() as temp_dir:
             zip_path = await automator.download_existing_export(temp_dir)
             
-            if isinstance(zip_path, dict) and zip_path.get("status") == "error":
-                raise HTTPException(status_code=500, detail=f"Download failed: {zip_path.get('message')}")
-            
-            if not zip_path:
+            if isinstance(zip_path, dict):
+                status = zip_path.get("status", "error")
+                if status == "otp_required":
+                    raise HTTPException(status_code=400, detail="OTP verification required. Please complete login first.")
+                raise HTTPException(status_code=500, detail=f"Download failed: {zip_path.get('message', 'Unknown error')}")
+
+            if not zip_path or not isinstance(zip_path, str):
                 raise HTTPException(status_code=500, detail="Download failed: Button not found or timeout.")
 
             # Ingest
