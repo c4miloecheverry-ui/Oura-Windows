@@ -72,7 +72,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             await api.saveSettings({ daily_sync_time: dailySyncTime, email });
 
             const data = await api.startLogin(email);
-            addLog(data.message || 'Login started');
+            addLog(data?.message || 'Login started');
             setStatus('otp_needed');
         } catch (err: any) {
             const msg = err?.message || 'Login failed';
@@ -89,7 +89,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         addLog(`Submitting OTP...`);
         try {
             const data = await api.submitOtp(otp);
-            addLog(data.message || 'OTP submitted');
+            addLog(data?.message || 'OTP submitted');
             setStatus('logged_in');
         } catch (err: any) {
             const msg = err?.message || 'OTP failed';
@@ -106,7 +106,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         addLog(`Requesting data export...`);
         try {
             const data = await api.requestExport();
-            addLog(data.message || 'Export requested');
+            addLog(data?.message || 'Export requested');
             setStatus('exporting');
             // Start polling
             pollStatus();
@@ -149,7 +149,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         addLog(`Downloading and ingesting data...`);
         try {
             const data = await api.downloadExport();
-            addLog(data.message || 'Download complete');
+            addLog(data?.message || 'Download complete');
             setStatus('completed');
         } catch (err: any) {
             const msg = err?.message || 'Download failed';
@@ -170,7 +170,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
 
         try {
             const data = await api.uploadZip(file);
-            addLog(data.message || "Upload complete");
+            addLog(data?.message || "Upload complete");
             setStatus('completed');
         } catch (err: any) {
             const msg = err?.message || 'Upload failed';
