@@ -1,27 +1,81 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 
 block_cipher = None
 
+hiddenimports = [
+    # --- uvicorn ---
+    'uvicorn.logging',
+    'uvicorn.loops',
+    'uvicorn.loops.auto',
+    'uvicorn.protocols',
+    'uvicorn.protocols.http',
+    'uvicorn.protocols.http.auto',
+    'uvicorn.protocols.websockets',
+    'uvicorn.protocols.websockets.auto',
+    'uvicorn.lifespan',
+    'uvicorn.lifespan.on',
+    # --- fastapi / starlette ---
+    'fastapi',
+    'fastapi.middleware',
+    'fastapi.middleware.cors',
+    'fastapi.staticfiles',
+    'fastapi.responses',
+    *collect_submodules('starlette'),
+    # --- pydantic ---
+    *collect_submodules('pydantic'),
+    *collect_submodules('pydantic_core'),
+    # --- sqlalchemy ---
+    'sqlalchemy',
+    'sqlalchemy.orm',
+    'sqlalchemy.dialects.sqlite',
+    *collect_submodules('sqlalchemy.engine'),
+    *collect_submodules('sqlalchemy.sql'),
+    # --- pandas ---
+    'pandas',
+    'pandas.io.formats.style',
+    # --- async / http ---
+    'anyio',
+    'anyio._backends',
+    'anyio._backends._asyncio',
+    'sniffio',
+    'h11',
+    'httpx',
+    'httpcore',
+    'httpcore._async',
+    'httpcore._sync',
+    # --- multipart (file uploads) ---
+    'multipart',
+    'multipart.multipart',
+    # --- playwright ---
+    'playwright',
+    'playwright.async_api',
+    'playwright._impl',
+    'playwright._impl._driver',
+    # --- langchain ---
+    'langchain_ollama',
+    'langchain_community',
+    'langchain_community.utilities',
+    'langchain_community.agent_toolkits',
+    'langchain_core',
+    'langchain_core.callbacks',
+    # --- other ---
+    'email_validator',
+]
+
+# Collect playwright driver data files
+playwright_datas = collect_data_files('playwright')
+
 a = Analysis(
     ['src/api/main.py'],
-    pathex=['..'], # Allow resolving 'backend' package from root
+    pathex=['..'],
     binaries=[],
     datas=[
-        ('src', 'backend/src'),  # Map 'src' to 'backend/src' inside bundle so 'backend.src' imports work
-        # Add any other data files here
+        ('src', 'backend/src'),
+        ('__init__.py', 'backend'),
+        *playwright_datas,
     ],
-    hiddenimports=[
-        'uvicorn.logging',
-        'uvicorn.loops',
-        'uvicorn.loops.auto',
-        'uvicorn.protocols',
-        'uvicorn.protocols.http',
-        'uvicorn.protocols.http.auto',
-        'uvicorn.protocols.websockets',
-        'uvicorn.protocols.websockets.auto',
-        'uvicorn.lifespan',
-        'uvicorn.lifespan.on',
-    ],
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
