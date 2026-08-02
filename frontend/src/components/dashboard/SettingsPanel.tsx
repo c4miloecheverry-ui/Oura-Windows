@@ -42,7 +42,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             await api.saveSettings({ daily_sync_time: dailySyncTime, email });
             addLog(`Settings saved: Daily sync at ${dailySyncTime}`);
         } catch (err: any) {
-            setError(err.message);
+            setError(err?.message || 'Failed to save settings');
         } finally {
             setLoading(false);
         }
@@ -57,7 +57,7 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             setStatus('idle');
             addLog("Session cleared.");
         } catch (err: any) {
-            setError(err.message);
+            setError(err?.message || 'Failed to clear session');
         } finally {
             setLoading(false);
         }
@@ -72,11 +72,12 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             await api.saveSettings({ daily_sync_time: dailySyncTime, email });
 
             const data = await api.startLogin(email);
-            addLog(data.message);
+            addLog(data.message || 'Login started');
             setStatus('otp_needed');
         } catch (err: any) {
-            setError(err.message);
-            addLog(`Error: ${err.message}`);
+            const msg = err?.message || 'Login failed';
+            setError(msg);
+            addLog(`Error: ${msg}`);
         } finally {
             setLoading(false);
         }
@@ -88,11 +89,12 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         addLog(`Submitting OTP...`);
         try {
             const data = await api.submitOtp(otp);
-            addLog(data.message);
+            addLog(data.message || 'OTP submitted');
             setStatus('logged_in');
         } catch (err: any) {
-            setError(err.message);
-            addLog(`Error: ${err.message}`);
+            const msg = err?.message || 'OTP failed';
+            setError(msg);
+            addLog(`Error: ${msg}`);
         } finally {
             setLoading(false);
         }
@@ -104,13 +106,14 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         addLog(`Requesting data export...`);
         try {
             const data = await api.requestExport();
-            addLog(data.message);
+            addLog(data.message || 'Export requested');
             setStatus('exporting');
             // Start polling
             pollStatus();
         } catch (err: any) {
-            setError(err.message);
-            addLog(`Error: ${err.message}`);
+            const msg = err?.message || 'Export request failed';
+            setError(msg);
+            addLog(`Error: ${msg}`);
             setLoading(false);
         }
     };
@@ -146,11 +149,12 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
         addLog(`Downloading and ingesting data...`);
         try {
             const data = await api.downloadExport();
-            addLog(data.message);
+            addLog(data.message || 'Download complete');
             setStatus('completed');
         } catch (err: any) {
-            setError(err.message);
-            addLog(`Error: ${err.message}`);
+            const msg = err?.message || 'Download failed';
+            setError(msg);
+            addLog(`Error: ${msg}`);
         } finally {
             setLoading(false);
         }

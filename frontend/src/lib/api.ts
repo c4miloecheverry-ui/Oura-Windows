@@ -11,6 +11,17 @@ export interface ChatMessage {
     thoughts?: any[];
 }
 
+async function parseJsonResponse(res: Response, fallbackMessage: string) {
+    let data;
+    try {
+        data = await res.json();
+    } catch {
+        throw new Error(`${fallbackMessage} (status ${res.status})`);
+    }
+    if (!res.ok) throw new Error(data?.detail || fallbackMessage);
+    return data;
+}
+
 export const api = {
     // --- Settings & Automation ---
     getSettings: async () => {
@@ -41,9 +52,7 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Login failed');
-        return data;
+        return parseJsonResponse(res, 'Login failed');
     },
 
     submitOtp: async (otp: string) => {
@@ -52,16 +61,12 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ otp })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'OTP failed');
-        return data;
+        return parseJsonResponse(res, 'OTP failed');
     },
 
     requestExport: async () => {
         const res = await fetch(`${BASE_URL}/api/automation/request-export`, { method: 'POST' });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Export request failed');
-        return data;
+        return parseJsonResponse(res, 'Export request failed');
     },
 
     checkStatus: async (): Promise<AutomationStatusResponse> => {
@@ -72,9 +77,7 @@ export const api = {
 
     downloadExport: async () => {
         const res = await fetch(`${BASE_URL}/api/automation/download`, { method: 'POST' });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Download failed');
-        return data;
+        return parseJsonResponse(res, 'Download failed');
     },
 
     uploadZip: async (file: File) => {
@@ -84,14 +87,7 @@ export const api = {
             method: 'POST',
             body: formData,
         });
-        let data;
-        try {
-            data = await res.json();
-        } catch {
-            throw new Error(`Upload failed with status ${res.status}`);
-        }
-        if (!res.ok) throw new Error(data.detail || 'Upload failed');
-        return data;
+        return parseJsonResponse(res, 'Upload failed');
     },
 
     // --- Dashboard Data ---
