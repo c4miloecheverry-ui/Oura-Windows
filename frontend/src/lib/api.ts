@@ -84,7 +84,12 @@ export const api = {
             method: 'POST',
             body: formData,
         });
-        const data = await res.json();
+        let data;
+        try {
+            data = await res.json();
+        } catch {
+            throw new Error(`Upload failed with status ${res.status}`);
+        }
         if (!res.ok) throw new Error(data.detail || 'Upload failed');
         return data;
     },

@@ -169,8 +169,9 @@ export function SettingsPanel({ onClose }: SettingsPanelProps) {
             addLog(data.message || "Upload complete");
             setStatus('completed');
         } catch (err: any) {
-            setError(err.message);
-            addLog(`Error: ${err.message}`);
+            const msg = err?.message || 'Upload failed';
+            setError(msg);
+            addLog(`Error: ${msg}`);
         } finally {
             setLoading(false);
             // Reset input
